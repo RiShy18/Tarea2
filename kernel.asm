@@ -345,11 +345,17 @@ setSpawn:
 	
 ;spawn the coins add set the spawn position of the player
 initMap:
-	mov si, coinImg
+	mov si, eagleImg
 	mov bp, addEntity
 	mov ah, 'X'
 	call iterateMap  ; iterate the map and add a coin at every 'X' on the map
-	call spawnPlayer ; set spawn for player
+
+    mov si, enemyImg
+	mov bp, addEntity
+	mov ah, 'Y'
+	call iterateMap  ; iterate the map and add a coin at every 'X' on the map
+
+	call spawnPlayer ; set spawn for player   
 	ret
 	
 ;draw the map
@@ -509,13 +515,17 @@ boxImg:
 	dw boxImg_0     ;frames
 	dw 0            ;zero end frame
 	
-coinImg:
-	dw 5            ;time per frames
-	dw 20           ;time of animation
-	dw coin_0       ;frames
-	dw coin_1       ;frames
-	dw coin_2       ;frames
-	dw coin_1       ;frames
+
+eagleImg:
+	dw 1            ;time per frames
+	dw 1           ;time of animation
+	dw eagle0       ;frames
+	dw 0            ;zero end frame
+
+enemyImg:
+	dw 1            ;time per frames
+	dw 1           ;time of animation
+	dw enemy_0       ;frames
 	dw 0            ;zero end frame
 
 playerImg_front_0 incbin "img/player_down.bin"
@@ -531,14 +541,16 @@ playerImg_left_0  incbin "img/player_left.bin"
 playerImg_left_1  incbin "img/player_left.bin"
 playerImg_left_2  incbin "img/player_left.bin"
 
-coin_0  incbin "img/eagle.bin"
-coin_1  incbin "img/eagle.bin"
-coin_2  incbin "img/eagle.bin"
+enemy_0 incbin "img/enemy_left.bin"
+
+eagle0  incbin "img/eagle.bin"
+eagle1  incbin "img/eagle.bin"
+eagle2  incbin "img/eagle.bin"
 
 boxImg_0         incbin "img/box.bin"
 tileImg_0        incbin "img/tile.bin"
 
-ASCIImap          incbin "img/map2.bin"
+ASCIImap          incbin "img/maptank.bin"
 db 0
 
 %assign usedMemory ($-$$)
