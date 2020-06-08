@@ -4,6 +4,7 @@ bits 16
 ;precompiler constant
 %define entityArraySize 16
 ;Let's begin by going into graphic mode
+reboot:
 call initGraphics
 
 ;Now let's register some custom interrupt handlers
@@ -147,12 +148,20 @@ checkForCollision:
 	mov si, cx
 	mov bx, dx
 	call collideMap
+    ;call collideEagle
 	popa
 	jnc .noMapCollision
 		;if we reach this point => actual collision
 		mov cx, [di+2]         ;set new x pos to current x pos => no movement
 		mov dx, [di+4]         ;set new z pos to current z pos => no movement
 	.noMapCollision:
+    ;call collideEagle
+    ;popa
+    ;jnc .noTouchEagle
+    ;    ;if we reach this point => actual collision
+	;	mov cx, [di+2]         ;set new x pos to current x pos => no movement
+	;	mov dx, [di+4]         ;set new z pos to current z pos => no movement
+    ;.noTouchEagle:
 	mov byte [canWalk], 1
 	mov word [di]   ,bp  ;update the animation in use
 	mov word [di+2] ,cx  ;update x pos
@@ -160,8 +169,31 @@ checkForCollision:
 	popa                 ;reload old register state
 	ret
 
+pauseLoop:
+in al, 0x60
+cmp al, 0x26
+je returnGame
+jne pauseLoop
+
 canWalk db 0
 gameControls:
+    mov al, byte [pressP]
+    cmp al, 0
+    jz returnGame   
+        jmp pauseLoop
+    returnGame:
+    mov al, byte [pressM]
+    cmp al, 1
+    jne uff
+        ;call initMap
+        ;call drawMap
+        jmp initMap
+    uff:
+    mov al, byte [pressS]
+    cmp al, 0
+    jz noShoot
+        jmp shoot
+    noShoot:
 	mov byte [canWalk], 0
 	mov di, player ;select the player as the main entity for "checkForCollision"
 	mov al, byte [pressL]
@@ -355,6 +387,11 @@ initMap:
 	mov ah, 'Y'
 	call iterateMap  ; iterate the map and add a coin at every 'X' on the map
 
+    mov si, destroyImg
+	mov bp, addEntity
+	mov ah, 'D'
+	call iterateMap  ; iterate the map and add a coin at every 'X' on the map
+
 	call spawnPlayer ; set spawn for player   
 	ret
 	
@@ -376,6 +413,12 @@ collideMap:
 	mov bp, blockCollison
 	mov ah, '0'
 	call iterateMap ; iterate the map and check for a collision with a '0'
+	ret
+
+collideEagle:
+    mov bp, blockCollison
+	mov ah, 'X'
+	call iterateMap ; iterate the map and check for a collision with a 'X'
 	ret
 	
 ;set the spawn of the player to the field 'P'
@@ -440,7 +483,20 @@ blockCollison:
 	pop dx
 	pop cx
 	ret
-	
+
+bulletCaster:
+	mov word [bullet+2], cx ; set player x
+	mov word [bullet+4], dx ; set player z
+	add word [bullet+4], 3  ; offset player z
+	clc
+	ret
+
+shoot:
+    mov bp, bulletCaster
+	mov ah, 'P'
+	call iterateMap ; iterate the map and set the player position to the last 'P' found on the map
+	jmp noShoot
+    
 %include "buffer.asm"
 
 
@@ -467,6 +523,13 @@ box_Anim  dw boxImg          ;pointer to animation
 box_PosX  dw 0x10            ;position of box (x)
 box_PosZ  dw 0x10            ;position of box (z)
 box_AnimC dw 0               ;animation counter
+
+;bullet entity
+bullet:
+bullet_Anim  dw bulletImg
+bullet_PosX  dw 0x32
+bullet_PosY  dw 0x32
+bullet_AnimC dw 0
 
 ;other entity structures:
 entityArrayMem:
@@ -528,6 +591,18 @@ enemyImg:
 	dw enemy_0       ;frames
 	dw 0            ;zero end frame
 
+destroyImg:
+    dw 1
+    dw 1
+    dw destImg
+    dw 0
+
+bulletImg:
+    dw 1
+    dw 1
+    dw shootImg
+    dw 0
+
 playerImg_front_0 incbin "img/player_down.bin"
 playerImg_front_1 incbin "img/player_down.bin"
 playerImg_front_2 incbin "img/player_down.bin"
@@ -547,6 +622,9 @@ eagle0  incbin "img/eagle.bin"
 eagle1  incbin "img/eagle.bin"
 eagle2  incbin "img/eagle.bin"
 
+shootImg         incbin "img/bullet.bin"
+
+destImg          incbin "img/destroy.bin"
 boxImg_0         incbin "img/box.bin"
 tileImg_0        incbin "img/tile.bin"
 
