@@ -203,7 +203,9 @@ gameControls:
 		call checkForCollision ;check if player would collide on new position, if not change position to new position
 	.nokeyws:
 	cmp byte [canWalk], 0
+    ;
 	jnz .noCollision
+
 		mov word [player+6], 0 ;reset animation counter
 		ret
 	.noCollision:
@@ -221,6 +223,8 @@ pressR db 0
 pressU db 0
 pressD db 0
 pressS db 0
+pressP db 0
+pressM db 0
 keyboardINTListener: ;interrupt handler for keyboard events
 	pusha	
 		xor bx,bx ; bx = 0: signify key down event
@@ -249,7 +253,15 @@ keyboardINTListener: ;interrupt handler for keyboard events
         cmp al,0x39 ;space
         jne .check5
             mov byte [cs:pressS], bl
-		.check5:
+        .check5:
+        cmp al,0x26 ;pause with L
+        jne .check6
+            mov byte [cs:pressP], bl
+        .check6:
+        cmp al,0x13 ;reset with R
+        jne .check7
+            mov byte [cs:pressM], bl
+		.check7:
 		mov al, 20h ;20h
 		out 20h, al ;acknowledge the interrupt so further interrupts can be handled again 
 	popa ;resume state to not modify something by accident
@@ -526,11 +538,11 @@ coin_2  incbin "img/eagle.bin"
 boxImg_0         incbin "img/box.bin"
 tileImg_0        incbin "img/tile.bin"
 
-ASCIImap          incbin "img/map.bin"
+ASCIImap          incbin "img/map2.bin"
 db 0
 
 %assign usedMemory ($-$$)
-%assign usableMemory (512*16)
+%assign usableMemory (512*32)
 %warning [usedMemory/usableMemory] Bytes used
-times (512*16)-($-$$) db 0 ;kernel must have size multiple of 512 so let's pad it to the correct size
+times (512*32)-($-$$) db 0 ;kernel must have size multiple of 512 so let's pad it to the correct size
 ;times (512*1000)-($-$$) db 0 ;toggle this to use in bochs
