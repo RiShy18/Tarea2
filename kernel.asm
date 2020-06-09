@@ -192,7 +192,7 @@ gameControls:
     mov al, byte [pressS]
     cmp al, 0
     jz noShoot
-        jmp shoot
+        jmp initMap2
     noShoot:
 	mov byte [canWalk], 0
 	mov di, player ;select the player as the main entity for "checkForCollision"
@@ -394,7 +394,13 @@ initMap:
 
 	call spawnPlayer ; set spawn for player   
 	ret
-	
+
+initMap2:
+    mov si, bulletImg
+	mov bp, addEntity
+	mov ah, 'Y'
+	call iterateMap  ; iterate the map and add a coin at every 'X' on the map
+
 ;draw the map
 drawMap:
 	mov si, boxImg_0
@@ -493,7 +499,7 @@ bulletCaster:
 
 shoot:
     mov bp, bulletCaster
-	mov ah, 'P'
+	mov ah, ' '
 	call iterateMap ; iterate the map and set the player position to the last 'P' found on the map
 	jmp noShoot
     
