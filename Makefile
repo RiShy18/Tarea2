@@ -5,6 +5,6 @@ clean:
 build:
 	nasm -fbin kernel.asm -o kernel.bin
 	nasm -fbin bootloader.asm -o bootloader.bin
-	cat bootloader.bin kernel.bin > kernelCopy.bin
+	cat bootloader.bin kernel.bin > bootableTanks.bin
 run:
-	qemu-system-i386 kernelCopy.bin
+	qemu-system-i386 bootableTanks.bin
