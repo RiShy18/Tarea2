@@ -28,11 +28,8 @@ FileSystem		    db "FAT12   "	    ; File system type: don't change!
 
 
 start: 
-
   mov si, welcomeMsg  
   call printString
- 
-
 tmp:
   call keyboardINTListener  
 
@@ -125,7 +122,7 @@ end:
   jmp $
 
 errorMsg db "Failed to load...", 0
-welcomeMsg db "Welcome to bootable tanks", 0xA, 0xD, "Press F to play", 0xA, 0xD, 0
+welcomeMsg db "Welcome to bootable tanks", 0xA, 0xD, "Press F to play", 0xA, 0xD, "   [ O ]", 0xA, 0xD, "     \ \      p", 0xA, 0xD, "      \ \  \o/", 0xA, 0xD, "       \ \--'---_", 0xA, 0xD, "      /\ \   / ~~\_", 0xA, 0xD, " ./---/__|=/_/------//~~~\", 0xA, 0xD, "/___________________/O   O \", 0xA, 0xD, "(===(\_________(===(Oo o o O)", 0xA, 0xD, " \~~~\____/     \---\Oo__o--", 0xA, 0xD, "   ~~~~~~~       ~~~~~~~~~~", 0xA, 0xD, 0
 times 510-($-$$) db 0
 
 ;Begin MBR Signature
